@@ -1,74 +1,60 @@
 <?php
-
 $server = "localhost";
 $user = "root";
 $pass = "";
 $db_name = "restaurant_db";
-$conn = "";
 
+// Connect to database
 $conn = mysqli_connect($server, $user, $pass, $db_name);
 
-
-if ($conn) {
-    echo "You are connected.";
-
-}else {
-    echo "error";
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
 }
 
+// Handle form submission
 if (isset($_POST['clicked'])) {
+    $username = $_POST['uname'];
+    $password = $_POST['pword'];
 
-$user = $_POST['uname'];
-$pass = $_POST['pword'];
+    // Prepare SQL statement
+    $stmt = $conn->prepare("INSERT INTO login_tbl (username, password) VALUES (?, ?)");
+    $stmt->bind_param("ss", $username, $password);
 
-$sql = "INSERT INTO login_tbl (username, password)
-VALUES ('$user', '$pass')";
+    if ($stmt->execute()) {
+        $message = "Inserted successfully!";
+    } else {
+        $message = "Error inserting: " . $stmt->error;
+    }
 
-if (mysqli_query($conn, $sql)) {
-
-echo "inserted successfully";
-}else {
-    echo "error_inserting" . mysqli_error($conn);
+    $stmt->close();
 }
 
-}
-
-
-
-
+$conn->close();
 ?>
 
 <!DOCTYPE html>
-<html lang = "en">
-
+<html lang="en">
 <head>
-    
+    <meta charset="UTF-8">
+    <title>Restaurant Ordering Management System</title>
 </head>
-
-
 <body>
 
-<h1> Restaurant Ordering Management System </h1>
+<h1>Restaurant Ordering Management System</h1>
 
-<form method = "POST" action = "">
+<?php
+if (isset($message)) {
+    echo "<p>$message</p>";
+}
+?>
 
-
-<p1> Log-in </p1>
-<input type = "text" name = "uname"> 
-<input type = "password" name = "pword">
-<input type ="submit" name = "clicked" > 
-<p2> Already have an account? </p2> <a href = "sign-in.php"> Click this to sign-up.</a>
-
-
-
+<form method="POST" action="">
+    <p>Log-in</p>
+    <input type="text" name="uname" placeholder="Username" required>
+    <input type="password" name="pword" placeholder="Password" required>
+    <input type="submit" name="clicked" value="Submit">
+    <p>Already have an account? <a href="sign-in.php">Click here to sign-up.</a></p>
 </form>
+
 </body>
-
-
-
-
-
-
-
-
 </html>

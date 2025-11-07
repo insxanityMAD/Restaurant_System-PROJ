@@ -1,6 +1,43 @@
 
-
 <?php 
+$server = "localhost";
+$user = "root";
+$pass = "";
+$db_name = "restaurant_db";
+$conn = "";
+
+$conn = mysqli_connect($server, $user, $pass, $db_name);
+
+if ($conn) {
+  echo "connected successfully";
+}else {
+  echo "error";
+}
+
+if (isset($_POST['clicked'])) {
+
+  $fname = $_POST['firstname'];
+  $lname = $_POST['lastname'];
+  $nusername = $_POST['username'];
+  $npassword = $_POST['password'];
+  $Gender = $_POST['gender'];
+  $faddress = $_POST['fulladdress'];
+  $eaddress = $_POST['email'];
+  $cnumber = $_POST['contactnumber'];
+
+  $stmt = $conn -> prepare("INSERT INTO signup_tbl (firstname, lastname, username, password, gender, fulladdress, emailaddress, contactnumber) 
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+
+  $stmt -> bind_param("ssssssss", $fname, $lname, $nusername, $npassword, $Gender, $faddress, $eaddress,  $cnumber);
+
+  if ($stmt -> execute()) {
+  $message = "inserted successfully";
+}else {
+  echo "error" . $stmt -> error;
+}
+}
+
+
 
 ?>
 
@@ -40,15 +77,15 @@
 
 
 <label> full address </label>
-<input type = text name = "fulladdress">
+<input type = "text" name = "fulladdress">
 
 <label> email address </label>
-<input type = text name = "email">
+<input type = "text" name = "email">
 
 <labe> contact number </label>
-<input type = text name = "contactnumber">
+<input type = "text" name = "contactnumber">
 
-<input type = button name = "submit" > submit </input>
+<input  type = "submit" name = "clicked" > submit </input>
 
 </form>
 
