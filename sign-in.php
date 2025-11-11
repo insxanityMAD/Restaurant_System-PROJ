@@ -1,5 +1,8 @@
 
 <?php 
+
+$message1 = "";
+
 $server = "localhost";
 $user = "root";
 $pass = "";
@@ -16,30 +19,39 @@ if ($conn) {
 
 if (isset($_POST['clicked'])) {
 
-  $fname = $_POST['firstname'];
-  $lname = $_POST['lastname'];
+  
   $nusername = $_POST['username'];
-  $npassword = $_POST['password'];
-  $Gender = $_POST['gender'];
-  $faddress = $_POST['fulladdress'];
+  $npassword = PASSWORD_HASH($_POST['password'], PASSWORD_BCRYPT);
   $eaddress = $_POST['email'];
   $cnumber = $_POST['contactnumber'];
 
-  $stmt = $conn -> prepare("INSERT INTO signup_tbl (firstname, lastname, username, password, gender, fulladdress, emailaddress, contactnumber) 
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+  
+if (strlen($npassword) <= 12) {
+  $message1 = "not valid";
+  exit();
+}else {
+  $message1 = "valid";
 
-  $stmt -> bind_param("ssssssss", $fname, $lname, $nusername, $npassword, $Gender, $faddress, $eaddress,  $cnumber);
+}
+
+
+  $stmt = $conn -> prepare("INSERT INTO signup_tbl (username, password, emailaddress, contactnumber) 
+  VALUES (?, ?, ?, ?)");
+
+  $stmt -> bind_param("ssss",  $nusername, $npassword, $eaddress,  $cnumber);
 
   if ($stmt -> execute()) {
   $message = "inserted successfully";
 }else {
   echo "error" . $stmt -> error;
-}
-}
+}}
+
 
 
 
 ?>
+
+
 
 
 <!DOCTYPE html>
@@ -51,15 +63,17 @@ if (isset($_POST['clicked'])) {
 <body >
 <h1> Create Account </h1>
 
+<?php 
+
+
+if ($message1) echo "<p style = 'color:red;'> $message1 </p>"
+
+
+?>
+
 <form method = "POST" action ="">
 
-<label> first name </label>
-<input type = text name = "firstname">
 
-
-
-<label> last name </label>
-<input type = text name = "lastname">
 
 <label>new username </label>
 <input type = text name = "username">
@@ -67,17 +81,10 @@ if (isset($_POST['clicked'])) {
 
 
 <label> new password </label>
-<input type = password name = "password">
+<input type = password name = "password"
 
 
-<p1> gender </p1>
-<input type="radio" name="gender" value="Male" onclick="uncheckRadio(this)"> Male
-<input type="radio" name="gender" value="Female" onclick="uncheckRadio(this)"> Female
-<input type="radio" name="gender" value="Other" onclick="uncheckRadio(this)"> Other
 
-
-<label> full address </label>
-<input type = "text" name = "fulladdress">
 
 <label> email address </label>
 <input type = "text" name = "email">
@@ -98,15 +105,4 @@ if (isset($_POST['clicked'])) {
 
 </html>
 
-<script>
-let lastChecked = null;
 
-function uncheckRadio(radio) {
-  if (radio === lastChecked) {
-    radio.checked = false; // uncheck if clicked again
-    lastChecked = null;
-  } else {
-    lastChecked = radio; // remember which was clicked
-  }
-}
-</script>

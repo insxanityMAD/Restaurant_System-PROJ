@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 $server = "localhost";
 $user = "root";
 $pass = "";
@@ -12,19 +14,37 @@ if (!$conn) {
 }
 
 // Handle form submission
-if (isset($_POST['clicked'])) {
-    $username = $_POST['uname'];
-    $password = $_POST['pword'];
+if (isset($_POST['login'])) {
+    $email = $_POST['email'];
+    $password = $_POST['password'];
 
-    // Prepare SQL statement
-    $stmt = $conn->prepare("INSERT INTO login_tbl (username, password) VALUES (?, ?)");
-    $stmt->bind_param("ss", $username, $password);
 
-    if ($stmt->execute()) {
-        $message = "Inserted successfully!";
-    } else {
-        $message = "Error inserting: " . $stmt->error;
+    $sql = "SELECT * FROM signup_tbl WHERE emailaddress = ?";
+
+    $stmt = $conn -> prepare($sql);
+    $stmt -> bind_param("s", $email); 
+    $stmt -> execute();
+    $result = $stmt -> get_result();
+
+    if ($result -> num_rows > 0) {
+        $user = $result -> fetch_assoc();
+
+        if (password_verify($password, $user['password'])) {
+
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['username'] = $user['username'];
+            echo "login succesful! Welcome, " . $user['username'];
+
+
+        }else {
+            echo "invalid password!";
+        }
+    }else {
+        echo "No user found with that username or email";
     }
+
+
+
 
     $stmt->close();
 }
@@ -48,13 +68,18 @@ if (isset($message)) {
 }
 ?>
 
+
+<div class = "container">
+    <div class = "form-box" id = "login-form">
 <form method="POST" action="">
     <p>Log-in</p>
-    <input type="text" name="uname" placeholder="Username" required>
-    <input type="password" name="pword" placeholder="Password" required>
-    <input type="submit" name="clicked" value="Submit">
-    <p>Already have an account? <a href="sign-in.php">Click here to sign-up.</a></p>
+    <input type="text" name="email" placeholder="Username" required>
+    <input type="password" name="password" placeholder="Password" required>
+    <input type="submit" name="login" value="Submit">
+    <p>Don't have an account? <a href="sign-in.php">Register</a></p>
 </form>
+    </div>
+</div>
 
 </body>
 </html>
