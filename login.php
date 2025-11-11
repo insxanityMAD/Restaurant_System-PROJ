@@ -55,6 +55,8 @@ $conn->close();
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/dark.css">
     <meta charset="UTF-8">
     <title>Restaurant Ordering Management System</title>
 </head>

@@ -57,7 +57,7 @@ if (strlen($npassword) <= 12) {
 <!DOCTYPE html>
 
 <head>
-
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/dark.css">
 </head>
 
 <body >
