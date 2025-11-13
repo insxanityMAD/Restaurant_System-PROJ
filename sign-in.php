@@ -42,6 +42,7 @@ if (strlen($npassword) <= 12) {
 
   if ($stmt -> execute()) {
   $message = "inserted successfully";
+
 }else {
   echo "error" . $stmt -> error;
 }}
@@ -100,7 +101,7 @@ if ($message1) echo "<p style = 'color:red;'> $message1 </p>"
 <option value = "Admin"> Admin </option>
 <option value = "User"> User </option>
 <input  type = "submit" name = "clicked" > </input>
-
+<a href = "login.php"> already signup? click to redirect to login page </a>
 
 </select>
 </form>

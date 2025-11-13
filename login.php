@@ -35,7 +35,14 @@ if (isset($_POST['login'])) {
             if ($user['AccOption'] == $option) {
                  $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
-            echo "login succesful! Welcome, " . $user['username'];
+            $_SESSION['AccOption'] = $user['AccOption'];
+
+            if ($user['emailaddress'] == $email && $user['AccOption'] == "User") {
+                    header("Location: user-header.php");
+            }else if ($user['emailaddress'] == $email && $user['AccOption'] == "Admin") {
+                header("Location: admin-header.php");
+            }
+            
             }else {
                 echo "incorrect account type";
             }
