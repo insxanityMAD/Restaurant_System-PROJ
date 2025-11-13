@@ -17,6 +17,7 @@ if (!$conn) {
 if (isset($_POST['login'])) {
     $email = $_POST['email'];
     $password = $_POST['password'];
+    $option = $_POST['choose'];
 
 
     $sql = "SELECT * FROM signup_tbl WHERE emailaddress = ?";
@@ -31,10 +32,15 @@ if (isset($_POST['login'])) {
 
         if (password_verify($password, $user['password'])) {
 
-            $_SESSION['user_id'] = $user['id'];
+            if ($user['AccOption'] == $option) {
+                 $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
             echo "login succesful! Welcome, " . $user['username'];
+            }else {
+                echo "incorrect account type";
+            }
 
+           
 
         }else {
             echo "invalid password!";
@@ -77,8 +83,15 @@ if (isset($message)) {
     <p>Log-in</p>
     <input type="text" name="email" placeholder="Username" required>
     <input type="password" name="password" placeholder="Password" required>
-    <input type="submit" name="login" value="Submit">
+   
+
+    <label for = "select">--SELECT--</label>
+<select id = "select" name = "choose"> 
+<option value = "Admin"> Admin </option>
+<option value = "User"> User </option>
+ <input type="submit" name="login" value="Submit">
     <p>Don't have an account? <a href="sign-in.php">Register</a></p>
+    </select>
 </form>
     </div>
 </div>

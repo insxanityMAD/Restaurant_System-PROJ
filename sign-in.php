@@ -24,7 +24,7 @@ if (isset($_POST['clicked'])) {
   $npassword = PASSWORD_HASH($_POST['password'], PASSWORD_BCRYPT);
   $eaddress = $_POST['email'];
   $cnumber = $_POST['contactnumber'];
-
+  $option = $_POST['choose'];
   
 if (strlen($npassword) <= 12) {
   $message1 = "not valid";
@@ -35,10 +35,10 @@ if (strlen($npassword) <= 12) {
 }
 
 
-  $stmt = $conn -> prepare("INSERT INTO signup_tbl (username, password, emailaddress, contactnumber) 
-  VALUES (?, ?, ?, ?)");
+  $stmt = $conn -> prepare("INSERT INTO signup_tbl (username, password, emailaddress, contactnumber, AccOption) 
+  VALUES (?, ?, ?, ?, ?)");
 
-  $stmt -> bind_param("ssss",  $nusername, $npassword, $eaddress,  $cnumber);
+  $stmt -> bind_param("sssss",  $nusername, $npassword, $eaddress,  $cnumber, $option);
 
   if ($stmt -> execute()) {
   $message = "inserted successfully";
@@ -86,14 +86,23 @@ if ($message1) echo "<p style = 'color:red;'> $message1 </p>"
 
 
 
-<label> email address </label>
-<input type = "text" name = "email">
+<label for = "eaddress" > email address </label>
+<input type = "text" id = "eaddress" name = "email">
 
 <labe> contact number </label>
 <input type = "text" name = "contactnumber">
 
-<input  type = "submit" name = "clicked" > submit </input>
 
+
+
+<label for = "select"> Signup as: </label>
+<select id = "select" name = "choose"> 
+<option value = "Admin"> Admin </option>
+<option value = "User"> User </option>
+<input  type = "submit" name = "clicked" > </input>
+
+
+</select>
 </form>
 
 
