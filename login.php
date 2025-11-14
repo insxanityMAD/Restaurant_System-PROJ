@@ -7,6 +7,7 @@ $pass = "";
 $db_name = "restaurant_db";
 
 // Connect to database
+//gegel
 $conn = mysqli_connect($server, $user, $pass, $db_name);
 
 if (!$conn) {
@@ -16,7 +17,7 @@ if (!$conn) {
 // Handle form submission
 if (isset($_POST['login'])) {
     $email = $_POST['email'];
-    $password = $_POST['password'];
+    $password = $_POST['password']; 
     $option = $_POST['choose'];
 
 
