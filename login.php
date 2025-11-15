@@ -7,7 +7,7 @@ $pass = "";
 $db_name = "restaurant_db";
 
 // Connect to database
-//gegel
+
 $conn = mysqli_connect($server, $user, $pass, $db_name);
 
 if (!$conn) {

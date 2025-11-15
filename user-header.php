@@ -12,24 +12,22 @@ $conn = "";
 
 $conn = mysqli_connect($server, $user, $pass, $db_name);
 
-if ($conn) {
-  echo "connected successfully";
-}else {
-  echo "error";
+
+if ($conn -> connect_error) {
+  die ("Connection Failed: " . $conn->connect_error);
 }
 
-    $sql = "SELECT * FROM signup_tbl WHERE emailaddress = ?";
+$sql = "SELECT Food_Type, COUNT(*) AS COUNT_id FROM menu_tbl GROUP BY Food_Type";
 
-    $stmt = $conn -> prepare($sql);
-    $stmt -> bind_param("s", $email); 
-    $stmt -> execute();
-    $result = $stmt -> get_result();
-     $user = $result -> fetch_assoc();
-$_SESSION['username'] = $user['username'];
+$result = $conn ->query($sql);
 
-    echo "Hi, " . $user['username'];
+if ($result->num_rows > 0) {
+  while ($row = $result->fetch_assoc()) {
+    echo "ID: " . $row["Food_Type"] . " " . $row["COUNT_id"] . "<br>";
+  }
+}else {
+  echo "0 result";
+}
 
-
-
-
+$conn -> close();
 ?>
