@@ -46,47 +46,59 @@ if (strlen($npassword) <= 12) {
 }else {
   echo "error" . $stmt -> error;
 }}
-?>
-
-<!DOCTYPE html>
+?><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Create Account</title><!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Create Account</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
-
 <style>
     body {
         margin: 0;
         padding: 0;
-        font-family: 'Poppins', sans-serif;
-        background: linear-gradient(135deg, #242424, #3a3a3a);
-        height: 100vh;
+        font-family: Arial, sans-serif;
+        background-color: #141414; /* dark background */
         display: flex;
         justify-content: center;
         align-items: center;
+        height: 100vh;
     }
 
     .signup-container {
-        width: 420px;
-        background: #2c2c2c; /* solid dark background */
-        padding: 35px;
-        border-radius: 15px;
+        width: 380px;
+        background-color: #1c1c1c; /* dark box */
+        padding: 40px;
+        border-radius: 8px;
         color: white;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        box-shadow: 0 0 20px rgba(255, 153, 0, 0.5); /* orange glow */
+        text-align: center; /* center content */
+    }
+
+    /* Logo image styling */
+    .signup-container img {
+        width: 170px;
+        height: 170px;
+        margin-bottom: 15px;
+        border-radius: 50%; /* optional round logo */
     }
 
     .signup-container h2 {
-        text-align: center;
         margin-bottom: 25px;
-        font-weight: 600;
+        font-weight: bold;
+        color: #ff9900; /* bright orange */
     }
 
     .signup-container label {
-        margin-top: 10px;
         display: block;
-        font-size: 15px;
+        margin-top: 12px;
+        font-size: 14px;
+        color: #ccc;
+        text-align: left; /* keep labels left-aligned */
     }
 
     .signup-container input,
@@ -94,31 +106,34 @@ if (strlen($npassword) <= 12) {
         width: 100%;
         padding: 12px;
         margin: 8px 0 15px 0;
-        border-radius: 8px;
+        font-size: 14px;
         border: none;
+        border-radius: 4px;
         outline: none;
-        font-size: 15px;
-        background: #e6e6e6;
-        color: #000;
+        background-color: #333; /* dark input */
+        color: white;
+    }
+
+    .signup-container input::placeholder {
+        color: #aaa;
     }
 
     .signup-container input[type="submit"] {
-        background: #ffb92e;
+        background-color: #ff9900; /* orange button */
         color: black;
-        font-weight: 600;
+        font-weight: bold;
         cursor: pointer;
-        margin-top: 5px;
         transition: 0.3s;
     }
 
     .signup-container input[type="submit"]:hover {
-        background: #ff9900;
+        background-color: #ff7700;
     }
 
     .signup-container a {
-        color: #ffd27a;
-        font-size: 14px;
+        color: #ff9900;
         text-decoration: none;
+        font-size: 14px;
     }
 
     .signup-container a:hover {
@@ -128,17 +143,19 @@ if (strlen($npassword) <= 12) {
     .sub-text {
         text-align: center;
         margin-top: 12px;
-        font-size: 14px;
+        font-size: 13px;
     }
 </style>
 </head>
 <body>
 
 <div class="signup-container">
+    <!-- Logo inside the container -->
+    <img src="ChatGPT Image Sep 20, 2025, 02_28_43 AM.png" alt="Logo">
+
     <h2>Create Account</h2>
 
     <form method="POST" action="">
-
         <label>New Username</label>
         <input type="text" name="username" placeholder="Enter Username" required>
 
@@ -146,7 +163,7 @@ if (strlen($npassword) <= 12) {
         <input type="password" name="password" placeholder="Enter Password" required>
 
         <label>Email Address</label>
-        <input type="text" name="email" placeholder="Enter Email" required>
+        <input type="email" name="email" placeholder="Enter Email" required>
 
         <label>Contact Number</label>
         <input type="text" name="contactnumber" placeholder="Enter Contact Number" required>
@@ -162,10 +179,8 @@ if (strlen($npassword) <= 12) {
         <p class="sub-text">
             Already signed up? <a href="login.php">Go to Login</a>
         </p>
-
     </form>
 </div>
 
 </body>
 </html>
-
