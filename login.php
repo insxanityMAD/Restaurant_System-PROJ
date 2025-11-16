@@ -16,15 +16,16 @@ if (!$conn) {
 
 // Handle form submission
 if (isset($_POST['login'])) {
-    $email = $_POST['email'];
+    $log = $_POST['login_id'];
+    $username = $_POST['login_id'];
     $password = $_POST['password']; 
     $option = $_POST['choose'];
 
 
-    $sql = "SELECT * FROM signup_tbl WHERE emailaddress = ?";
+    $sql = "SELECT * FROM signup_tbl WHERE emailaddress = ? OR username = ?";
 
     $stmt = $conn -> prepare($sql);
-    $stmt -> bind_param("s", $email); 
+    $stmt -> bind_param("ss", $log, $log); 
     $stmt -> execute();
     $result = $stmt -> get_result();
 
@@ -38,10 +39,12 @@ if (isset($_POST['login'])) {
             $_SESSION['username'] = $user['username'];
             $_SESSION['AccOption'] = $user['AccOption'];
 
-            if ($user['emailaddress'] == $email && $user['AccOption'] == "User") {
+            if ($user['AccOption'] == "User") {
                     header("Location: user-header.php");
-            }else if ($user['emailaddress'] == $email && $user['AccOption'] == "Admin") {
+                    exit();
+            }else if ($user['AccOption'] == "Admin") {
                 header("Location: admin-header.php");
+                exit();
             }
             
             }else {
@@ -89,17 +92,19 @@ if (isset($message)) {
     <div class = "form-box" id = "login-form">
 <form method="POST" action="">
     <p>Log-in</p>
-    <input type="text" name="email" placeholder="Username" required>
+    <input type="text" name="login_id" placeholder="Username Or Email" required>
     <input type="password" name="password" placeholder="Password" required>
    
 
     <label for = "select">--SELECT--</label>
+
 <select id = "select" name = "choose"> 
-<option value = "Admin"> Admin </option>
-<option value = "User"> User </option>
- <input type="submit" name="login" value="Submit">
-    <p>Don't have an account? <a href="sign-in.php">Register</a></p>
+    <option value = "Admin"> Admin </option>
+    <option value = "User"> User </option>
+
     </select>
+     <input type="submit" name="login" value="Submit">
+    <p>Don't have an account? <a href="sign-in.php">Register</a></p>
 </form>
     </div>
 </div>

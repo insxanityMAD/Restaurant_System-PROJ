@@ -1,4 +1,28 @@
 
+<?php
+session_start();
+
+if (!isset($_SESSION['username']) || $_SESSION['AccOption'] !== "User") {
+    header("Location: login.php");
+    exit();
+}
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Dashboard</title>
+</head>
+<body>
+
+<h1>Welcome, <?php echo $_SESSION['username']; ?>!</h1>
+
+</body>
+</html>
+
+
+
+
+
 
 <?php 
 
@@ -21,13 +45,18 @@ $sql = "SELECT Food_Type, COUNT(*) AS COUNT_id FROM menu_tbl GROUP BY Food_Type"
 
 $result = $conn ->query($sql);
 
+
+
 if ($result->num_rows > 0) {
+
+  
   while ($row = $result->fetch_assoc()) {
     echo "ID: " . $row["Food_Type"] . " " . $row["COUNT_id"] . "<br>";
   }
 }else {
   echo "0 result";
 }
+
 
 $conn -> close();
 ?>
