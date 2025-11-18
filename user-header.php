@@ -2,7 +2,7 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['username']) || $_SESSION['AccOption'] !== "User") {
+if (!isset($_SESSION['username']) || $_SESSION['acc_type'] !== "User") {
     header("Location: login.php");
     exit();
 }
@@ -41,7 +41,7 @@ if ($conn -> connect_error) {
   die ("Connection Failed: " . $conn->connect_error);
 }
 
-$sql = "SELECT Food_Type, COUNT(*) AS COUNT_id FROM menu_tbl GROUP BY Food_Type";
+$sql = "SELECT * FROM menu_tbl";
 
 $result = $conn ->query($sql);
 
@@ -51,7 +51,7 @@ if ($result->num_rows > 0) {
 
   
   while ($row = $result->fetch_assoc()) {
-    echo "ID: " . $row["Food_Type"] . " " . $row["COUNT_id"] . "<br>";
+    echo  $row["id"] . " " . $row["Dish_Info"] . $row["Price"] . $row["Price"] . $row["Food_Type"] . "<br>";
   }
 }else {
   echo "0 result";

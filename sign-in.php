@@ -35,7 +35,7 @@ if (strlen($npassword) <= 12) {
 }
 
 
-  $stmt = $conn -> prepare("INSERT INTO signup_tbl (username, password, emailaddress, contactnumber, AccOption) 
+  $stmt = $conn -> prepare("INSERT INTO signup_tbl (username, password, emailaddress, contactnumber, acc_type) 
   VALUES (?, ?, ?, ?, ?)");
 
   $stmt -> bind_param("sssss",  $nusername, $npassword, $eaddress,  $cnumber, $option);

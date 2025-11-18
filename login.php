@@ -34,16 +34,16 @@ if (isset($_POST['login'])) {
 
         if (password_verify($password, $user['password'])) {
 
-            if ($user['AccOption'] == $option) {
-                 $_SESSION['user_id'] = $user['id'];
+            if ($user['acc_type'] == $option) {
+                 $_SESSION['user_id'] = $user['customer_id'];
             $_SESSION['username'] = $user['username'];
-            $_SESSION['AccOption'] = $user['AccOption'];
+            $_SESSION['acc_type'] = $user['acc_type'];
 
-            if ($user['AccOption'] == "User") {
+            if ($user['acc_type'] == "User") {
                     header("Location: user-header.php");
                     exit();
-            }else if ($user['AccOption'] == "Admin") {
-                header("Location: admin-header.php");
+            }else if ($user['acc_type'] == "Admin") {
+                header("Location: crud-admin.php");
                 exit();
             }
             
