@@ -6,7 +6,7 @@ $user = "root";
 $pass = "";
 $db_name = "restaurant_db";
 
-// Connect to database
+
 
 $conn = mysqli_connect($server, $user, $pass, $db_name);
 
@@ -16,7 +16,7 @@ if (!$conn) {
 
 // Handle form submission
 if (isset($_POST['login'])) {
-    $log = $_POST['login_id'];
+    $log = $_POST['login_id']; 
     $username = $_POST['login_id'];
     $password = $_POST['password']; 
     $option = $_POST['choose'];
