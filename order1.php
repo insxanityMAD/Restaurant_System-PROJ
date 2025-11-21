@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Your Order</title>
   <style>
-    /* Minimal page styling so this page looks OK. This does NOT touch your original file. */
+    
     body{font-family: Arial, Helvetica, sans-serif; background: #fafafa; margin: 0; padding: 20px; color:#111}
     .card{max-width:980px;margin:30px auto;background:#fff;padding:18px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.08)}
     h1{margin:0 0 12px 0}

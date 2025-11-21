@@ -1,43 +1,81 @@
 <?php
+session_start();
+include("connection_db.php");
+
+// Only allow admin
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== "Admin") {
+    header("Location: login-admin.php");
+    exit();
+}
+
+// Initialize variables
 $id = "";
 $name = "";
-$price = 0;
+$price = "";
 $type = "";
-
 $errorMessage = "";
 $successMessage = "";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $id = $_POST['id'];
-    $name = $_POST['name'];
-    $price = $_POST['price'];
+    $id = trim($_POST['id']);
+    $name = trim($_POST['name']);
+    $price = trim($_POST['price']);
     $type = $_POST['dish_type'];
 
     if (empty($id) || empty($name) || empty($price) || empty($type)) {
         $errorMessage = "All the fields are required!";
     } else {
-        // Database connection
-        $server = "localhost";
-        $user = "root";
-        $pass = "";
-        $db_name = "restaurant_db";
+        // Handle image upload
+        $imageName = null;
+        if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
+            $uploadDir = "uploads/";
+            if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 
-        $conn = mysqli_connect($server, $user, $pass, $db_name);
+            $imageName = time() . "_" . basename($_FILES['image']['name']);
+            $targetFile = $uploadDir . $imageName;
 
-        if (!$conn) die("Connection failed: " . mysqli_connect_error());
+            $allowedTypes = ['jpg','jpeg','png','gif'];
+            $fileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
 
-        // Insert into database
-        $sql = "INSERT INTO menu_tbl (id, Dish_Info, Price, Food_Type) VALUES ('$id', '$name', '$price', '$type')";
-        if (mysqli_query($conn, $sql)) {
+            if (!in_array($fileType, $allowedTypes)) {
+                $errorMessage = "Only JPG, JPEG, PNG, GIF files are allowed.";
+            } else {
+                if (!move_uploaded_file($_FILES['image']['tmp_name'], $targetFile)) {
+                    $errorMessage = "Failed to upload image.";
+                }
+            }
+        }
+
+       if (empty($errorMessage)) {
+    // Check duplicate Dish_Info
+    $checkSql = "SELECT * FROM menu_tbl WHERE Dish_Info = ?";
+    $checkStmt = $conn->prepare($checkSql);
+    $checkStmt->bind_param("s", $name);
+    $checkStmt->execute();
+    $checkResult = $checkStmt->get_result();
+
+    if ($checkResult->num_rows > 0) {
+        $errorMessage = "Dish name already exists. Please choose a different name.";
+    } else {
+        // Insert new dish
+        $sql = "INSERT INTO menu_tbl (dish_id, Dish_Info, Price, Food_Type, image) VALUES (?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ssdss", $id, $name, $price, $type, $imageName);
+
+        if ($stmt->execute()) {
             $successMessage = "Dish Added Successfully!";
             $id = $name = $price = $type = "";
         } else {
-            $errorMessage = "Error: " . $conn->error;
+            $errorMessage = "Database error: " . $stmt->error;
         }
+        $stmt->close();
+    }
 
-        $conn->close();
+    $checkStmt->close();
+}
     }
 }
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -55,7 +93,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
 }
 
 .dish-container {
@@ -98,7 +136,6 @@ body {
     color: #aaa;
 }
 
-/* Styled submit and cancel buttons */
 .dish-container input[type="submit"],
 .dish-container a.btn-cancel {
     width: 48%;
@@ -135,22 +172,10 @@ body {
     color: #ff7700;
 }
 
-/* Alert message style */
 .alert {
     font-size: 14px;
     margin-bottom: 15px;
-}
-
-/* Styled select with drawer arrow */
-.dish-container select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background-image: url('data:image/svg+xml;utf8,<svg fill="white" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 16px;
-    padding-right: 40px; /* space for arrow */
+    text-align: center;
 }
 </style>
 </head>
@@ -160,29 +185,33 @@ body {
     <h2>New Dish</h2>
 
     <?php if (!empty($errorMessage)) { ?>
-        <div class="alert alert-warning"><?php echo $errorMessage; ?></div>
+        <div class="alert" style="color:#ff3300;"><?php echo $errorMessage; ?></div>
     <?php } ?>
 
     <?php if (!empty($successMessage)) { ?>
-        <div class="alert alert-success"><?php echo $successMessage; ?></div>
+        <div class="alert" style="color:#00cc44;"><?php echo $successMessage; ?></div>
     <?php } ?>
 
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data" autocomplete="off">
         <label>Dish ID</label>
-        <input type="text" name="id" value="<?php echo $id; ?>" placeholder="Enter Dish ID">
+        <input type="text" name="id" value="<?php echo htmlspecialchars($id); ?>" placeholder="Enter Dish ID" >
 
         <label>Dish Name</label>
-        <input type="text" name="name" value="<?php echo $name; ?>" placeholder="Enter Dish Name">
+        <input type="text" name="name" value="<?php echo htmlspecialchars($name); ?>" placeholder="Enter Dish Name">
 
         <label>Dish Price</label>
-        <input type="text" name="price" value="<?php echo $price; ?>" placeholder="Enter Price">
+        <input type="text" name="price" value="<?php echo htmlspecialchars($price); ?>" placeholder="Enter Price">
 
         <label>Dish Type</label>
         <select name="dish_type">
+            <option value="">-- Select Type --</option>
             <option value="Starter" <?php if($type=="Starter") echo "selected"; ?>>Starter</option>
             <option value="Main Course" <?php if($type=="Main Course") echo "selected"; ?>>Main Course</option>
             <option value="Dessert" <?php if($type=="Dessert") echo "selected"; ?>>Dessert</option>
         </select>
+
+        <label>Dish Image</label>
+        <input type="file" name="image" accept="image/*">
 
         <input type="submit" value="Submit">
         <a href="crud-admin.php" class="btn-cancel">Cancel</a>

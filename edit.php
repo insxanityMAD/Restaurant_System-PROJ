@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 
@@ -8,11 +7,15 @@ $pass = "";
 $db_name = "restaurant_db";
 
 $conn = mysqli_connect($server, $user, $pass, $db_name);
+if (!$conn) {
+    die("Database connection error");
+}
 
 $id = "";
 $name = "";
 $price = "";
 $type = "";
+$currentImage = "";
 
 $errorMessage = "";
 $successMessage = "";
@@ -27,11 +30,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         exit;
     }
 
-    $id = $_GET['id'];
-
-    $sql = "SELECT * FROM menu_tbl WHERE id = $id";
-    $result = mysqli_query($conn, $sql);
-    $row = mysqli_fetch_assoc($result);
+    $id = intval($_GET['id']);
+    $stmt = $conn->prepare("SELECT * FROM menu_tbl WHERE dish_id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $stmt->close();
 
     if (!$row) {
         header("location: /SYSTEM/crud-admin.php");
@@ -39,10 +44,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     }
 
     // Fill form
-    $id = $row['id'];
     $name = $row['Dish_Info'];
     $price = $row['Price'];
     $type = $row['Food_Type'];
+    $currentImage = $row['image'];
 }
 
 /* -----------------------
@@ -50,41 +55,70 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 ------------------------ */
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-    $id = $_POST['id'];
+    $id = intval($_POST['id']);
     $name = trim($_POST['name']);
     $price = trim($_POST['price']);
     $type = trim($_POST['dish_type']);
 
+    // Get current image from database in case POST does not include it
+    $stmt = $conn->prepare("SELECT image FROM menu_tbl WHERE dish_id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $row = $res->fetch_assoc();
+    $currentImage = $row['image'];
+    $stmt->close();
+
     if ($id === "" || $name === "" || $price === "" || $type === "") {
         $errorMessage = "All fields are required.";
     } else {
+        // Handle image upload
+        $imageFileName = $currentImage; // default to current image
 
-        $sql = "UPDATE menu_tbl 
-                SET Dish_Info = '$name',
-                    Price = '$price',
-                    Food_Type = '$type'
-                WHERE id = $id";
+        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+            $fileTmpPath = $_FILES['image']['tmp_name'];
+            $fileName = $_FILES['image']['name'];
+            $fileNameCmps = explode(".", $fileName);
+            $fileExtension = strtolower(end($fileNameCmps));
 
-        $result = mysqli_query($conn, $sql);
+            $allowedExtensions = array('jpg','jpeg','png','gif');
+            if (in_array($fileExtension, $allowedExtensions)) {
+                $newFileName = uniqid() . '.' . $fileExtension;
+                $uploadFileDir = './uploads/';
+                if (!is_dir($uploadFileDir)) mkdir($uploadFileDir, 0755, true);
+                $dest_path = $uploadFileDir . $newFileName;
+                if(move_uploaded_file($fileTmpPath, $dest_path)) {
+                    $imageFileName = $newFileName;
+                } else {
+                    $errorMessage = "Error uploading image.";
+                }
+            } else {
+                $errorMessage = "Allowed image types: jpg, jpeg, png, gif.";
+            }
+        }
 
-        if (!$result) {
-            $errorMessage = "Update failed: " . mysqli_error($conn);
-        } else {
-            header("location: /SYSTEM/crud-admin.php");
-            exit;
+        if(empty($errorMessage)){
+            // Use prepared statement for update
+            $stmt = $conn->prepare("UPDATE menu_tbl SET Dish_Info=?, Price=?, Food_Type=?, image=? WHERE dish_id=?");
+            $stmt->bind_param("sdssi", $name, $price, $type, $imageFileName, $id);
+            if ($stmt->execute()) {
+                header("location: /SYSTEM/crud-admin.php");
+                exit;
+            } else {
+                $errorMessage = "Update failed: " . $stmt->error;
+            }
+            $stmt->close();
         }
     }
 }
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>New Dish</title>
+<title>Edit Dish</title>
 <style>
 body {
     margin: 0;
@@ -137,7 +171,6 @@ body {
     color: #aaa;
 }
 
-/* Styled submit and cancel buttons */
 .dish-container input[type="submit"],
 .dish-container a.btn-cancel {
     width: 48%;
@@ -174,56 +207,46 @@ body {
     color: #ff7700;
 }
 
-/* Alert message style */
 .alert {
     font-size: 14px;
     margin-bottom: 15px;
-}
-
-/* Styled select with drawer arrow */
-.dish-container select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background-image: url('data:image/svg+xml;utf8,<svg fill="white" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 16px;
-    padding-right: 40px; /* space for arrow */
 }
 </style>
 </head>
 <body>
 
 <div class="dish-container">
-    <h2>New Dish</h2>
+    <h2>Edit Dish For ID "<?php echo $id; ?>" </h2>
 
     <?php if (!empty($errorMessage)) { ?>
         <div class="alert alert-warning"><?php echo $errorMessage; ?></div>
     <?php } ?>
 
-    <?php if (!empty($successMessage)) { ?>
-        <div class="alert alert-success"><?php echo $successMessage; ?></div>
-    <?php } ?>
-
-    <form method="POST">
-        <label>Dish ID</label>
-        <input type="text" name="id" value="<?php echo $id; ?>" placeholder="Enter Dish ID">
+    <form method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="id" value="<?php echo $id; ?>">
 
         <label>Dish Name</label>
-        <input type="text" name="name" value="<?php echo $name; ?>" placeholder="Enter Dish Name">
+        <input type="text" name="name" value="<?php echo $name; ?>" placeholder="Enter Dish Name" required>
 
         <label>Dish Price</label>
-        <input type="text" name="price" value="<?php echo $price; ?>" placeholder="Enter Price">
+        <input type="text" name="price" value="<?php echo $price; ?>" placeholder="Enter Price" required>
 
         <label>Dish Type</label>
-        <select name="dish_type">
+        <select name="dish_type" required>
             <option value="Starter" <?php if($type=="Starter") echo "selected"; ?>>Starter</option>
             <option value="Main Course" <?php if($type=="Main Course") echo "selected"; ?>>Main Course</option>
             <option value="Dessert" <?php if($type=="Dessert") echo "selected"; ?>>Dessert</option>
         </select>
 
-        <input type="submit" value="Submit">
+        <label>Current Image</label>
+        <?php if($currentImage): ?>
+            <img src="uploads/<?php echo $currentImage; ?>" alt="Current Image" style="width:150px; display:block; margin-bottom:10px; border-radius:8px;">
+        <?php endif; ?>
+
+        <label>Change Image</label>
+        <input type="file" name="image" accept="image/*">
+
+        <input type="submit" value="Update">
         <a href="crud-admin.php" class="btn-cancel">Cancel</a>
     </form>
 </div>

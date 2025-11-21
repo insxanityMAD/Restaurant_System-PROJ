@@ -14,7 +14,7 @@ $db_name = "restaurant_db";
 
 $conn = mysqli_connect($server, $user, $pass, $db_name);
 
-$sql = "DELETE FROM menu_tbl WHERE id = $id;";
+$sql = "DELETE FROM menu_tbl WHERE dish_id = $id;";
     $conn->query($sql);    
 }
 

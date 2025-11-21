@@ -140,13 +140,13 @@
 
                 while ($row = $result->fetch_assoc()) {
                     echo "<tr>
-                        <td>{$row['id']}</td>
+                        <td>{$row['dish_id']}</td>
                         <td>{$row['Dish_Info']}</td>
                         <td>₱{$row['Price']}</td>
                         <td>{$row['Food_Type']}</td>
                         <td>
-                            <a class='btn btn-primary btn-sm' href='/SYSTEM/edit.php?id={$row['id']}'>Edit</a>
-                            <a class='btn btn-danger btn-sm' href='/SYSTEM/delete.php?id={$row['id']}'>Delete</a>
+                            <a class='btn btn-primary btn-sm' href='/SYSTEM/edit.php?id={$row['dish_id']}'>Edit</a>
+                            <a class='btn btn-danger btn-sm' href='/SYSTEM/delete.php?id={$row['dish_id']}'>Delete</a>
                         </td>
                     </tr>";
                 }
